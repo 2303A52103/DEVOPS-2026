@@ -1,13 +1,35 @@
 {
+<<<<<<< HEAD
   "name": "personal-finance-tracker",
+=======
+  "name": "20260119",
+>>>>>>> 5ed3bcbf89c274185eeb29e2bda3810dfdb16aee
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
   "build": "node build-all.js"
 },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs"
+=======
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+>>>>>>> 5ed3bcbf89c274185eeb29e2bda3810dfdb16aee
 }
