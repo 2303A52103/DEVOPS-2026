@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tourist Place Recommender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ───────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">✦</span>
+      <span class="brand-name">Tourist Place Recommender</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-page="home">🗺 Explore</a>
+      <a href="#" class="nav-link" data-page="map">📍 Map</a>
+      <a href="#" class="nav-link nav-myplaces hidden" data-page="myplaces">➕ My Places</a>
+      <a href="#" class="nav-link nav-admin hidden" data-page="admin">⚙ Admin</a>
+    </div>
+    <div class="nav-auth">
+      <div id="nav-guest">
+        <a href="#" class="nav-link" data-page="login">Login</a>
+        <a href="#" class="btn-nav-register" data-page="register">Register</a>
+      </div>
+      <div id="nav-user" class="hidden">
+        <button class="btn-profile-trigger" id="btn-profile-trigger">
+          <span class="profile-avatar-mini" id="nav-avatar">👤</span>
+          <span id="nav-user-name"></span>
+          <span class="profile-caret">▾</span>
+        </button>
+        <div class="profile-dropdown hidden" id="profile-dropdown">
+          <div class="profile-dropdown-header">
+            <div class="profile-dropdown-avatar" id="dropdown-avatar">👤</div>
+            <div>
+              <div class="profile-dropdown-name" id="dropdown-name"></div>
+              <div class="profile-dropdown-email" id="dropdown-email"></div>
+            </div>
+          </div>
+          <hr class="dropdown-divider" />
+          <a href="#" class="dropdown-item" data-page="profile">👤 My Profile</a>
+          <a href="#" class="dropdown-item" data-page="myplaces">📌 My Places</a>
+          <a href="#" class="dropdown-item nav-admin-dd hidden" data-page="admin">⚙ Admin Panel</a>
+          <hr class="dropdown-divider" />
+          <button class="dropdown-item dropdown-logout" id="btn-logout">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── LOGIN ────────────────────────────────────────── -->
+  <main id="page-login" class="page auth-page">
+    <div class="auth-split">
+      <div class="auth-visual">
+        <div class="auth-orb auth-orb-1"></div><div class="auth-orb auth-orb-2"></div>
+        <div class="auth-visual-text">
+          <p class="auth-eyebrow">Welcome back</p>
+          <h2 class="auth-visual-title">Your next<br /><em>adventure</em><br />awaits</h2>
+          <p class="auth-visual-sub">Log in to add your own destinations, manage your places, and explore the world.</p>
+        </div>
+      </div>
+      <div class="auth-form-side">
+        <div class="auth-form-box">
+          <h2 class="auth-form-title">Sign in</h2>
+          <p class="auth-form-sub">No account? <a href="#" class="auth-switch" data-page="register">Create one free</a></p>
+          <div id="login-message" class="form-message hidden"></div>
+          <div class="form-group"><label>Email address</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" /></div>
+          <div class="form-group"><label>Password</label>
+            <div class="password-wrap"><input type="password" id="login-password" placeholder="••••••••" /><button type="button" class="toggle-pw" data-target="login-password">👁</button></div>
+          </div>
+          <button class="btn-auth" id="btn-login">Sign in</button>
+          <div class="auth-demo-hint"><strong>Demo admin:</strong> admin@tourist.com / admin123</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── REGISTER ─────────────────────────────────────── -->
+  <main id="page-register" class="page auth-page">
+    <div class="auth-split register-split">
+      <div class="auth-form-side">
+        <div class="auth-form-box">
+          <h2 class="auth-form-title">Create account</h2>
+          <p class="auth-form-sub">Have one? <a href="#" class="auth-switch" data-page="login">Sign in</a></p>
+          <div id="register-message" class="form-message hidden"></div>
+          <div class="form-group"><label>Full name</label><input type="text" id="reg-name" placeholder="Jane Doe" /></div>
+          <div class="form-group"><label>Email address</label><input type="email" id="reg-email" placeholder="you@example.com" /></div>
+          <div class="form-group"><label>Password <small>(min 6 chars)</small></label>
+            <div class="password-wrap"><input type="password" id="reg-password" placeholder="••••••••" /><button type="button" class="toggle-pw" data-target="reg-password">👁</button></div>
+          </div>
+          <div class="form-group"><label>Confirm password</label>
+            <div class="password-wrap"><input type="password" id="reg-confirm" placeholder="••••••••" /><button type="button" class="toggle-pw" data-target="reg-confirm">👁</button></div>
+          </div>
+          <button class="btn-auth" id="btn-register">Create account</button>
+        </div>
+      </div>
+      <div class="auth-visual register-visual">
+        <div class="auth-orb auth-orb-1"></div><div class="auth-orb auth-orb-2"></div>
+        <div class="auth-visual-text">
+          <p class="auth-eyebrow">Join Us</p>
+          <h2 class="auth-visual-title">Share your<br /><em>favourite</em><br />places</h2>
+          <p class="auth-visual-sub">Any registered user can add and manage tourist destinations. Start contributing to the community today.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── MY PLACES PAGE ───────────────────────────────── -->
+  <main id="page-myplaces" class="page">
+    <div class="myplaces-layout container">
+
+      <!-- Add Form -->
+      <div class="myplaces-form-col">
+        <div class="admin-card">
+          <h3 class="form-title" id="mp-form-title">➕ Add New Destination</h3>
+          <p class="mp-form-hint">Share a place you love with the community</p>
+          <div id="mp-form-msg" class="form-message hidden"></div>
+          <!-- hidden id for edit mode -->
+          <input type="hidden" id="mp-editing-id" value="" />
+
+          <div class="form-group"><label>Place Name *</label><input type="text" id="mp-name" placeholder="e.g. Ooty, Tamil Nadu" /></div>
+          <div class="form-group"><label>Description *</label><textarea id="mp-desc" rows="4" placeholder="What makes this place special?"></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Location *</label><input type="text" id="mp-location" placeholder="City, Country" /></div>
+            <div class="form-group"><label>Category *</label>
+              <select id="mp-category">
+                <option value="">Select…</option>
+                <option value="beach">🏖 Beach</option>
+                <option value="hill">⛰ Hill</option>
+                <option value="city">🏙 City</option>
+                <option value="forest">🌿 Forest</option>
+                <option value="desert">🏜 Desert</option>
+                <option value="historical">🏛 Historical</option>
+                <option value="adventure">🧗 Adventure</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Budget</label>
+              <select id="mp-budget"><option value="medium">Mid-range</option><option value="low">Budget</option><option value="high">Luxury</option></select>
+            </div>
+            <div class="form-group"><label>Rating (0–5)</label><input type="number" id="mp-rating" min="0" max="5" step="0.1" placeholder="4.5" /></div>
+          </div>
+          <div class="form-group"><label>Best Time to Visit</label><input type="text" id="mp-besttime" placeholder="e.g. October – March" /></div>
+          <div class="form-group"><label>Image URL <small>(paste a link)</small></label><input type="url" id="mp-imageurl" placeholder="https://images.unsplash.com/…" /></div>
+          <div class="form-group">
+            <label>Photo <small>(camera, upload, or drag &amp; drop)</small></label>
+
+            <!-- Tab switcher -->
+            <div class="img-tab-bar">
+              <button type="button" class="img-tab active" data-tab="camera">📸 Camera</button>
+              <button type="button" class="img-tab" data-tab="upload">📁 Upload</button>
+            </div>
+
+            <!-- CAMERA PANEL -->
+            <div class="img-panel" id="img-panel-camera">
+              <div class="camera-wrap" id="camera-wrap">
+                <video id="camera-video" class="camera-video" autoplay playsinline muted></video>
+                <canvas id="camera-canvas" hidden></canvas>
+                <div class="camera-overlay" id="camera-overlay">
+                  <span class="camera-overlay-icon">📸</span>
+                  <p>Click "Open Camera" to start</p>
+                </div>
+              </div>
+              <div class="camera-controls">
+                <button type="button" class="btn-cam" id="btn-open-camera">📸 Open Camera</button>
+                <button type="button" class="btn-cam btn-cam-snap hidden" id="btn-snap">⚪ Take Photo</button>
+                <button type="button" class="btn-cam btn-cam-retake hidden" id="btn-retake">🔄 Retake</button>
+                <select id="camera-facing" class="camera-facing hidden">
+                  <option value="environment">Back Camera</option>
+                  <option value="user">Front Camera</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- UPLOAD PANEL -->
+            <div class="img-panel hidden" id="img-panel-upload">
+              <div class="file-drop" id="mp-file-drop">
+                <input type="file" id="mp-image" accept="image/*" hidden />
+                <span class="file-drop-icon">📁</span>
+                <span class="file-drop-text">Click or drag an image here</span>
+              </div>
+            </div>
+
+            <!-- Shared preview -->
+            <div id="mp-image-preview" class="image-preview hidden">
+              <button type="button" class="preview-clear" id="btn-clear-image">✕ Remove</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Latitude <small>(optional)</small></label><input type="number" id="mp-lat" step="any" placeholder="e.g. 11.4102" /></div>
+            <div class="form-group"><label>Longitude <small>(optional)</small></label><input type="number" id="mp-lng" step="any" placeholder="e.g. 76.6950" /></div>
+          </div>
+          <div class="form-group">
+            <label>Click Map to Set Location</label>
+            <div id="mp-picker-map" class="picker-map"></div>
+            <p class="picker-hint" id="mp-picker-hint">Click anywhere to pin location</p>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" id="mp-btn-save">Add Destination</button>
+            <button class="btn-secondary" id="mp-btn-cancel" style="display:none">Cancel Edit</button>
+            <button class="btn-secondary" id="mp-btn-clear">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Places List -->
+      <div class="myplaces-list-col">
+        <div class="admin-card">
+          <div class="myplaces-list-header">
+            <h3 class="form-title">📌 My Destinations</h3>
+            <span class="mp-count" id="mp-count">0 places</span>
+          </div>
+          <div id="mp-empty" class="mp-empty hidden">
+            <div class="empty-icon">🌍</div>
+            <p>You haven't added any destinations yet.<br />Use the form to share your first place!</p>
+          </div>
+          <div id="mp-list" class="mp-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── HOME ─────────────────────────────────────────── -->
+  <main id="page-home" class="page active">
+    <section class="hero">
+      <div class="hero-bg">
+        <div class="hero-orb orb-1"></div><div class="hero-orb orb-2"></div><div class="hero-orb orb-3"></div>
+      </div>
+      <div class="hero-content">
+        <p class="hero-eyebrow">Your world awaits</p>
+        <h1 class="hero-title">Find Your<br /><em>Perfect Escape</em></h1>
+        <p class="hero-subtitle">Curated destinations, honest ratings, and personalised recommendations for every traveller.</p>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="search-input" placeholder="Search destinations, cities, experiences…" autocomplete="off" />
+          </div>
+          <button class="btn-search" id="btn-search">Search</button>
+        </div>
+        <div class="quick-filters">
+          <button class="chip active" data-cat="all">All</button>
+          <button class="chip" data-cat="beach">🏖 Beach</button>
+          <button class="chip" data-cat="hill">⛰ Hill</button>
+          <button class="chip" data-cat="city">🏙 City</button>
+          <button class="chip" data-cat="forest">🌿 Forest</button>
+          <button class="chip" data-cat="desert">🏜 Desert</button>
+          <button class="chip" data-cat="historical">🏛 Historical</button>
+          <button class="chip" data-cat="adventure">🧗 Adventure</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="filters-section container">
+      <div class="filters-row">
+        <div class="filter-group"><label>📍 Location</label><input type="text" id="filter-location" placeholder="e.g. India, Italy…" /></div>
+        <div class="filter-group"><label>💰 Budget</label>
+          <select id="filter-budget"><option value="all">Any budget</option><option value="low">Budget friendly</option><option value="medium">Mid-range</option><option value="high">Luxury</option></select>
+        </div>
+        <div class="filter-group"><label>↕ Sort by</label>
+          <select id="filter-sort"><option value="rating">Top rated</option><option value="name">Name A–Z</option><option value="newest">Newest</option></select>
+        </div>
+        <button class="btn-filter" id="btn-apply-filters">Apply Filters</button>
+        <button class="btn-reset" id="btn-reset-filters">Reset</button>
+      </div>
+    </section>
+
+    <section class="results-section container">
+      <div class="results-header">
+        <div id="results-count" class="results-count">Loading destinations…</div>
+        <div class="view-actions">
+          <button class="btn-map-view" id="btn-goto-map">🗺 View on Map</button>
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="grid">⊞</button>
+            <button class="view-btn" data-view="list">☰</button>
+          </div>
+        </div>
+      </div>
+      <div id="places-grid" class="places-grid"></div>
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">🗺️</div>
+        <h3>No destinations found</h3>
+        <p>Try adjusting your filters or search term</p>
+        <button class="btn-reset" id="btn-empty-reset">Clear Filters</button>
+      </div>
+      <div id="loading-state" class="loading-state"><div class="spinner"></div><p>Discovering destinations…</p></div>
+    </section>
+  </main>
+
+  <!-- ── MAP ──────────────────────────────────────────── -->
+  <main id="page-map" class="page">
+    <div class="map-layout">
+      <aside class="map-sidebar">
+        <div class="map-sidebar-header">
+          <h2 class="map-sidebar-title">🌍 Destinations</h2>
+          <input type="text" id="map-search" class="map-search-input" placeholder="Filter destinations…" />
+          <div class="map-cat-filters">
+            <button class="map-chip active" data-cat="all">All</button>
+            <button class="map-chip" data-cat="beach">🏖</button>
+            <button class="map-chip" data-cat="hill">⛰</button>
+            <button class="map-chip" data-cat="city">🏙</button>
+            <button class="map-chip" data-cat="forest">🌿</button>
+            <button class="map-chip" data-cat="desert">🏜</button>
+            <button class="map-chip" data-cat="historical">🏛</button>
+            <button class="map-chip" data-cat="adventure">🧗</button>
+          </div>
+        </div>
+        <div id="map-place-list" class="map-place-list"><div class="spinner small" style="margin:24px auto;display:block"></div></div>
+      </aside>
+      <div class="map-container-wrap">
+        <div id="main-map"></div>
+        <div class="map-legend">
+          <div class="legend-title">Category</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#e67e22"></span>Beach</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#27ae60"></span>Hill</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#2980b9"></span>City</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#16a085"></span>Forest</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#d4ac0d"></span>Desert</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span>Historical</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#c0392b"></span>Adventure</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── PROFILE ──────────────────────────────────────── -->
+  <main id="page-profile" class="page">
+    <div class="profile-page-layout container">
+      <aside class="profile-sidebar">
+        <div class="profile-card">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar" id="profile-avatar-display">👤</div>
+            <div class="profile-avatar-ring"></div>
+          </div>
+          <h2 class="profile-display-name" id="profile-display-name">—</h2>
+          <p class="profile-display-email" id="profile-display-email">—</p>
+          <span class="profile-role-badge" id="profile-role-badge">user</span>
+          <p class="profile-member-since" id="profile-member-since"></p>
+        </div>
+        <div class="profile-card">
+          <h3 class="profile-section-title">Choose Avatar</h3>
+          <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+      </aside>
+      <div class="profile-main">
+        <div class="profile-card">
+          <h3 class="profile-section-title">✏️ Edit Profile</h3>
+          <div id="profile-info-msg" class="form-message hidden"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Full Name</label><input type="text" id="p-name" placeholder="Your name" /></div>
+            <div class="form-group"><label>Email Address</label><input type="email" id="p-email" placeholder="you@example.com" /></div>
+          </div>
+          <button class="btn-primary" id="btn-save-profile">Save Changes</button>
+        </div>
+        <div class="profile-card">
+          <h3 class="profile-section-title">🔒 Change Password</h3>
+          <div id="profile-pw-msg" class="form-message hidden"></div>
+          <div class="form-group"><label>Current Password</label>
+            <div class="password-wrap"><input type="password" id="p-current-pw" placeholder="••••••••" /><button type="button" class="toggle-pw" data-target="p-current-pw">👁</button></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>New Password</label>
+              <div class="password-wrap"><input type="password" id="p-new-pw" placeholder="Min 6 chars" /><button type="button" class="toggle-pw" data-target="p-new-pw">👁</button></div>
+            </div>
+            <div class="form-group"><label>Confirm New Password</label>
+              <div class="password-wrap"><input type="password" id="p-confirm-pw" placeholder="Repeat" /><button type="button" class="toggle-pw" data-target="p-confirm-pw">👁</button></div>
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-change-pw">Update Password</button>
+        </div>
+        <div class="profile-card">
+          <h3 class="profile-section-title">ℹ️ Account Info</h3>
+          <div class="account-info-grid">
+            <div class="account-info-item"><span class="ai-label">Role</span><span class="ai-value" id="ai-role">—</span></div>
+            <div class="account-info-item"><span class="ai-label">Member Since</span><span class="ai-value" id="ai-since">—</span></div>
+            <div class="account-info-item"><span class="ai-label">Account ID</span><span class="ai-value ai-mono" id="ai-id">—</span></div>
+            <div class="account-info-item"><span class="ai-label">Status</span><span class="ai-value"><span class="status-dot"></span> Active</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── ADMIN ─────────────────────────────────────────── -->
+  <main id="page-admin" class="page">
+    <section class="admin-hero container">
+      <h2 class="admin-title">Admin Panel</h2>
+      <p class="admin-subtitle">Manage all tourist destinations</p>
+    </section>
+    <section class="container admin-layout">
+      <div class="admin-card">
+        <h3 class="form-title">📊 Dashboard Stats</h3>
+        <div id="stats-content"><div class="spinner small"></div></div>
+      </div>
+      <div class="admin-card">
+        <h3 class="form-title">🗂 All Destinations</h3>
+        <div id="admin-list" class="admin-list"><div class="spinner small"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── MODALS & TOAST ────────────────────────────────── -->
+  <div id="place-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
